@@ -1,254 +1,237 @@
-# 🔵 RunAsTI - Universal TrustedInstaller Execution
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Windows_10%2F11-0078D4?style=for-the-badge&logo=windows11&logoColor=white" alt="Platform">
+  <img src="https://img.shields.io/badge/Language-PowerShell%20%2B%20VBScript-5391FE?style=for-the-badge&logo=powershell&logoColor=white" alt="Language">
+  <img src="https://img.shields.io/badge/License-Unspecified-green?style=for-the-badge" alt="License">
+</p>
 
-This system allows you to run **any command or script** with **TrustedInstaller** privileges silently (no console flashes).
+<h1 align="center">🛡️ RunAsTI</h1>
 
----
+<p align="center">
+  <b>TrustedInstaller context-menu tooling for files, folders, and terminal entry points.</b><br>
+  <sub>Shell integration → hidden bootstrap → elevated launch without rebuilding the payload each time.</sub>
+</p>
 
-## 📁 File Structure
+## ✨ What's Inside
 
+| # | Tool | Description |
+|:-:|------|-------------|
+| 🛡️ | **[RunAsTI Core](#-runasti-core)** | Launches arbitrary commands as TrustedInstaller through a PowerShell bootstrap. |
+| 🧭 | **[Terminal Menus](#-terminal-menus)** | Adds grouped normal, admin, and TrustedInstaller terminal entries for folder background and folder click. |
+| 🔎 | **[Registry Finder TI](#-registry-finder-ti)** | Opens Registry Finder through the same elevation chain with a dedicated wrapper. |
+
+## 🛡️ RunAsTI Core
+
+> The main engine for launching protected tools and scripts as TrustedInstaller.
+
+### The Problem
+- Protected system resources often require more than standard administrator rights.
+- Direct registry shell commands are fragile when quoting becomes nested.
+- Hidden launch is hard to maintain when the shell verb, wrapper, and elevation chain all need to cooperate.
+
+### The Solution
+
+`RunAsTI` keeps the heavy TrustedInstaller payload centralized and reuses thin wrappers for shell integration. The default context-menu flow loads the TI bootstrap from the registry, then passes the final command to that payload from a hidden PowerShell host.
+
+```text
+Explorer verb
+  -> RunAsTI_Menu.vbs
+     -> hidden powershell.exe
+        -> HKCR\RunAsTI payload (values 10..40)
+           -> TrustedInstaller launch
+              -> target process
 ```
-D:\Users\joty79\scripts\
-├── RunAsTI\
-│   ├── RunAsTI.ps1          ← Core universal script (NEVER modify this)
-│   └── README.md            ← This guide
-│
-└── Utilities\
-    └── TakeOwnership\       ← Example implementation
-        ├── SilentOwnership.vbs   ← Wrapper that calls RunAsTI.ps1
-        ├── Manage_Ownership.ps1  ← The actual ownership script
-        └── Manage_Ownership.reg  ← Registry for context menu
-```
 
----
+This keeps the shell entries small while preserving a single TI execution model.
 
-## 🔧 How It Works
+### Usage
 
-```
-[Context Menu] → [VBS Wrapper] → [RunAsTI.ps1] → [TrustedInstaller] → [Your Script]
-```
+**From context menu** — *Right-click a supported file or folder, then choose the `🛡️` action.*
 
-1. **Registry** calls the VBS wrapper with `%1` (the file path)
-2. **VBS Wrapper** elevates to Admin and calls `RunAsTI.ps1`
-3. **RunAsTI.ps1** elevates to TrustedInstaller and runs your script
-4. **Your Script** runs with full TrustedInstaller privileges
-
----
-
-## 🔵 Usage Methods
-
-### Method 1: Universal Mode (Command Line)
-
-Run any command as TrustedInstaller:
-
+**From terminal:**
 ```powershell
-# Run notepad as TI
-.\RunAsTI.ps1 -Command "notepad" -Arguments "C:\Windows\System32\drivers\etc\hosts"
+# Launch a tool as TrustedInstaller
+pwsh -File .\RunAsTI.ps1 -Command "notepad.exe" -Arguments "C:\Windows\System32\drivers\etc\hosts"
 
-# Run PowerShell script as TI
-.\RunAsTI.ps1 -Command "pwsh" -Arguments "-File C:\Scripts\MyScript.ps1 -Param1 Value"
-
-# Run registry import as TI
-.\RunAsTI.ps1 -Command "regedit" -Arguments "/s C:\Changes.reg"
-
-# Delete protected file as TI
-.\RunAsTI.ps1 -Command "cmd" -Arguments "/c del C:\Windows\System32\ProtectedFile.dll"
+# Launch a script through the helper mode
+pwsh -File .\RunAsTI.ps1 -TargetFile "C:\Windows\System32" -ScriptPath "D:\Users\joty79\scripts\MyTool.ps1"
 ```
 
-### Method 2: Smart Mode (For VBS Context Menus)
+| Parameter | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `-Command` | `string` | `""` | Native executable or shell target to launch. |
+| `-Arguments` | `string` | `""` | Raw argument string passed to `-Command`. |
+| `-TargetFile` | `string` | none | Target path used by wrapper-driven script mode. |
+| `-ScriptPath` | `string` | none | Script invoked when `-TargetFile` mode is used. |
 
-When calling from VBScript, use `-TargetFile` and `-ScriptPath` to avoid quoting issues:
+## 🧭 Terminal Menus
 
+> Grouped shell menus for opening terminals normally, as administrator, or as TrustedInstaller.
+
+### The Problem
+- Separate top-level terminal verbs clutter the Explorer context menu.
+- Background clicks and folder clicks need different target tokens (`%V` vs `%L`).
+- Admin and TI launch paths should be grouped, but not mixed visually with normal entries.
+
+### The Solution
+
+The repo registers a shared `Terminal` cascade under both `Directory\Background\shell` and `Directory\shell`. Normal entries come first, then admin entries marked with `👨‍💼`, then TI entries marked with `🛡️`.
+
+```text
+Terminal
+  -> PowerShell 7
+  -> PowerShell 5
+  -> CMD
+  -> PowerShell 7 👨‍💼
+  -> PowerShell 5 👨‍💼
+  -> CMD 👨‍💼
+  -> PowerShell 7 🛡️
+  -> PowerShell 5 🛡️
+  -> CMD 🛡️
+```
+
+`RunAsAdmin_Menu.vbs` handles the generic admin elevation so the `.reg` file does not need fragile nested `Start-Process -Verb RunAs` quoting.
+
+### Usage
+
+**From context menu** — *Right-click empty folder space or a folder itself, then open `Terminal` and pick the desired launch level.*
+
+**From terminal:**
 ```powershell
-.\RunAsTI.ps1 -TargetFile "C:\Path\To\Target" -ScriptPath "C:\Path\To\YourScript.ps1"
+# Install or refresh the menu layout
+reg import ".\enable RunAsTI v3.1.reg"
+
+# Remove the menu layout
+reg import ".\disable RunAsTI v3.1.reg"
 ```
 
-This internally converts to:
+| Parameter | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `%V` | `shell token` | n/a | Background target path for empty-space right-clicks. |
+| `%L` | `shell token` | n/a | Folder target path for folder right-clicks. |
+| `CommandFlags=0x20` | `DWORD` | off | Adds a separator before the first admin or TI group item. |
 
+## 🔎 Registry Finder TI
+
+> Dedicated Registry Finder launcher that reuses the TI engine without embedding the full payload again.
+
+### The Problem
+- Registry editors often need elevated access beyond standard admin rights.
+- A standalone tool still needs to plug into the same hidden launch pattern.
+- The integration should stay optional and isolated from the main terminal grouping.
+
+### The Solution
+
+`RegistryFinder_TI.vbs` elevates to admin first, then calls `RunAsTI.ps1` with `RegistryFinder.exe` as the target command. `RegistryFinder_TI.reg` adds the shell entry for folder background usage.
+
+```text
+RegistryFinder shell verb
+  -> RegistryFinder_TI.vbs
+     -> RunAsTI.ps1
+        -> TrustedInstaller
+           -> RegistryFinder.exe
 ```
-Command: pwsh
-Arguments: -NoProfile -ExecutionPolicy Bypass -File "YourScript.ps1" -TargetFile "Target"
-```
 
----
+This gives Registry Finder the same elevation behavior without duplicating the TI bootstrap logic.
 
-## 📝 Creating a New Context Menu (Step by Step)
+### Usage
 
-### Step 1: Create Your PowerShell Script
+**From context menu** — *Right-click empty folder space and select `🛡️Registry Finder`.*
 
-Create your script that will run as TrustedInstaller. It must accept `-TargetFile` parameter:
-
+**From terminal:**
 ```powershell
-# D:\Scripts\MyNewScript.ps1
-param(
-    [string]$TargetFile
-)
+# Register the Registry Finder menu entry
+reg import ".\RegistryFinder_TI.reg"
 
-# Your code here - runs as TrustedInstaller!
-Write-Host "Processing: $TargetFile"
-# ... do stuff with TI privileges ...
+# Run the wrapper directly
+wscript.exe ".\RegistryFinder_TI.vbs"
 ```
 
-### Step 2: Create the VBS Wrapper
+| Parameter | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `RunAsTI_Script` | `string` | repo path | Path to `RunAsTI.ps1` used by the wrapper. |
+| `RegFinder_Exe` | `string` | `C:\Program Files\Registry Finder\RegistryFinder.exe` | Registry Finder executable path. |
 
-Create a VBS file that wraps your script:
+## 📦 Installation
 
-```vbscript
-' D:\Scripts\MyNewScript.vbs
-If WScript.Arguments.Count = 0 Then WScript.Quit
-
-Set WshShell = CreateObject("WScript.Shell")
-
-' 🔵 Check for Elevation
-Function IsAdmin()
-    On Error Resume Next
-    WshShell.RegRead "HKEY_USERS\S-1-5-19\Environment\TEMP"
-    If Err.Number = 0 Then IsAdmin = True Else IsAdmin = False
-    On Error GoTo 0
-End Function
-
-If Not IsAdmin() Then
-    Set objShell = CreateObject("Shell.Application")
-    Args = ""
-    For Each arg In WScript.Arguments
-        Args = Args & " " & Chr(34) & arg & Chr(34)
-    Next
-    objShell.ShellExecute "wscript.exe", Chr(34) & WScript.ScriptFullName & Chr(34) & Args, "", "runas", 0
-    WScript.Quit
-End If
-
-' 🔵 Main Logic
-TargetFile = WScript.Arguments(0)
-Quote = Chr(34)
-
-' 🔵 Paths (CHANGE THESE!)
-RunAsTI_Script = "D:\Users\joty79\scripts\RunAsTI\RunAsTI.ps1"
-MyScript       = "D:\Scripts\MyNewScript.ps1"   ' <-- YOUR SCRIPT PATH
-
-' 🔵 Calls RunAsTI.ps1 with -TargetFile AND -ScriptPath
-TargetArgs = "-TargetFile " & Quote & TargetFile & Quote & " -ScriptPath " & Quote & MyScript & Quote
-
-PsCmd = "-WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File " & Quote & RunAsTI_Script & Quote & " " & TargetArgs
-
-Command = "pwsh " & PsCmd
-
-WshShell.Run Command, 0, False
-```
-
-### Step 3: Create the Registry Entry
-
-Create a `.reg` file:
-
-```reg
-Windows Registry Editor Version 5.00
-
-; For Files
-[HKEY_CLASSES_ROOT\*\shell\MyNewAction]
-@="My New Action"
-"Icon"="imageres.dll,-5324"
-
-[HKEY_CLASSES_ROOT\*\shell\MyNewAction\command]
-@="wscript.exe \"D:\\Scripts\\MyNewScript.vbs\" \"%1\""
-
-; For Folders (optional)
-[HKEY_CLASSES_ROOT\Directory\shell\MyNewAction]
-@="My New Action"
-"Icon"="imageres.dll,-5324"
-
-[HKEY_CLASSES_ROOT\Directory\shell\MyNewAction\command]
-@="wscript.exe \"D:\\Scripts\\MyNewScript.vbs\" \"%1\""
-```
-
-### Step 4: Import and Test
-
-1. Double-click the `.reg` file to import
-2. Right-click any file → "My New Action"
-3. Your script runs as TrustedInstaller! 🎉
-
----
-
-## 🔵 Debugging
-
-Both scripts have built-in debug logging (disabled by default).
-
-### Enable Debug in RunAsTI.ps1
-
-Open `RunAsTI.ps1` and change line 26:
-
+### Quick Setup
 ```powershell
-$DebugMode = $true   # Was $false
+# Install the main RunAsTI menu set
+reg import ".\enable RunAsTI v3.1.reg"
+
+# Optional: install Registry Finder integration
+reg import ".\RegistryFinder_TI.reg"
+
+# Remove the main RunAsTI menu set
+reg import ".\disable RunAsTI v3.1.reg"
 ```
 
-This creates `debug_ps1.txt` in the RunAsTI folder.
+### Requirements
 
-### Enable Debug in VBS
+| Requirement | Details |
+| ----------- | ------- |
+| **OS** | Windows 10 or Windows 11 |
+| **Runtime** | PowerShell 7 for direct script usage |
+| **Shell Host** | Explorer context-menu support with `wscript.exe` enabled |
+| **Privileges** | Administrator for registry writes under `HKLM\Software\Classes` |
 
-In your VBS wrapper, add near the end:
+## 📁 Project Structure
 
-```vbscript
-' 🔵 Debug (Set to True to enable)
-Const DebugMode = True
-
-If DebugMode Then
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    Set logFile = fso.CreateTextFile("D:\Scripts\debug_vbs.txt", True)
-    logFile.WriteLine "TimeStamp: " & Now
-    logFile.WriteLine "TargetFile: " & TargetFile
-    logFile.WriteLine "FullCommand: " & Command
-    logFile.Close
-End If
+```text
+RunAsTI/
+├── .agents/
+│   └── workflows/
+│       └── readme.md                    # Repo-local copy of the README workflow template
+├── .assets/                             # Reserved assets directory
+├── docs/
+│   ├── Lessons_Clipboard_Quotes.md      # Notes from quoting and shell integration troubleshooting
+│   └── ShellExtension_Guide.md          # Reference notes for Windows shell extension behavior
+├── legacy/
+│   ├── SilentOwnership.vbs              # Archived wrapper from an older ownership-related flow
+│   ├── SilentTI.vbs                     # Archived wrapper from an older TI flow
+│   └── _removal_debug.reg               # Archived debug registry cleanup artifact
+├── disable RunAsTI v3.1.reg            # Removes the main RunAsTI shell integration keys
+├── enable RunAsTI v3.1.reg             # Registers file, folder, and terminal shell integration
+├── PROJECT_RULES.md                    # Project memory for registry decisions and guardrails
+├── README.md                           # You are here
+├── RegistryFinder_TI.reg               # Adds the Registry Finder TI shell verb
+├── RegistryFinder_TI.vbs               # Wrapper that launches Registry Finder through RunAsTI
+├── RunAsAdmin_Menu.vbs                 # Generic admin launcher used by terminal admin entries
+├── RunAsTI.ps1                         # Standalone PowerShell TI launcher
+└── RunAsTI_Menu.vbs                    # Hidden bootstrap wrapper that loads the TI payload from registry
 ```
 
----
+## 🧠 Technical Notes
 
-## ⚠️ Common Issues
+<details>
+<summary><b>Why is the main TrustedInstaller payload stored in the registry?</b></summary>
 
-### Problem: Nothing happens when clicking context menu
+The default shell flow uses `RunAsTI_Menu.vbs`, which loads the embedded PowerShell payload from `HKCR\RunAsTI` values `10..40`. This keeps the shell command strings short and avoids duplicating the full TI injector in every wrapper or menu entry.
 
-**Solution:** Enable debug logging in VBS to see the command being generated.
+</details>
 
-### Problem: VBS runs but PowerShell doesn't start
+<details>
+<summary><b>Why are there both <code>RunAsTI.ps1</code> and <code>RunAsTI_Menu.vbs</code>?</b></summary>
 
-**Solution:** Check for syntax errors in RunAsTI.ps1. Look for stray `<` or `>` characters.
+They serve different entry points. `RunAsTI.ps1` is the standalone PowerShell launcher, while `RunAsTI_Menu.vbs` is the shell-focused hidden bootstrap used by the `.reg` menu entries that need a quiet Explorer experience.
 
-### Problem: UAC prompt appears but script doesn't run
+</details>
 
-**Solution:** The script path might have spaces. Ensure all paths are properly quoted.
+<details>
+<summary><b>Why does the terminal submenu exist in both background and folder branches?</b></summary>
 
-### Problem: "Mandatory parameter missing" error
+Explorer uses different shell tokens depending on where the user clicks. `Directory\Background\shell` needs `%V` for the current folder, while `Directory\shell` needs `%L` for the selected folder path.
 
-**Solution:** Ensure `-Command` parameter is set to `Mandatory=$false` in RunAsTI.ps1.
+</details>
 
----
+<details>
+<summary><b>Why is admin launch handled by a separate VBS wrapper?</b></summary>
 
-## 🔵 RunAsTI.ps1 Parameters
+Nested quoting for elevated terminal commands becomes brittle very quickly inside `.reg` values. `RunAsAdmin_Menu.vbs` keeps the registry command strings simple and moves the elevation handshake into a reusable wrapper.
 
-| Parameter     | Required | Description                                            |
-| ------------- | -------- | ------------------------------------------------------ |
-| `-Command`    | No*      | The executable to run (e.g., `pwsh`, `notepad`, `cmd`) |
-| `-Arguments`  | No       | Arguments to pass to the command                       |
-| `-TargetFile` | No*      | The target file path (from context menu)               |
-| `-ScriptPath` | No*      | The PowerShell script to run                           |
-
-*Either `-Command` OR both `-TargetFile` AND `-ScriptPath` must be provided.
+</details>
 
 ---
 
-## 💡 Tips
-
-1. **Keep RunAsTI.ps1 in one central location** - Never copy it to each project
-2. **Always use the VBS wrapper for context menus** - Direct PowerShell calls from registry cause flashes
-3. **Test from command line first** before creating context menu
-4. **Use `-ScriptPath` mode** from VBS to avoid quoting nightmares
-5. **Back up your working setup** before making changes
-
----
-
-## 📚 Credits
-
-- Original RunAsTI concept by **AveYo** (LeanAndMean project)
-- Ported to pure PowerShell for silent execution
-- Universal wrapper system for context menu integration
-
----
-
-*Last Updated: 2026-02-01*
+<p align="center">
+  <sub>Built with PowerShell + VBScript · TrustedInstaller shell integration · Windows-first workflow</sub>
+</p>

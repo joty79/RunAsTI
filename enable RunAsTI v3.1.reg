@@ -12,6 +12,11 @@ Windows Registry Editor Version 5.00
 [-HKEY_CLASSES_ROOT\Microsoft.PowerShellScript.1\shell\RunAsTI]
 [-HKEY_CLASSES_ROOT\regfile\shell\RunAsTI]
 [-HKEY_CLASSES_ROOT\Folder\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal]
+[-HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal]
+[-HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_PS5]
+[-HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_CMD]
 [-HKEY_CLASSES_ROOT\Directory\background\shell\extract]
 [-HKEY_CLASSES_ROOT\JSFile\shell\RunAsTI]
 [-HKEY_CLASSES_ROOT\VBSFile\shell\RunAsTI]
@@ -140,32 +145,152 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\Folder\shell\RunAsTI\command]
 @="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"%L\""
 
-; --- Support for Backround  --
-[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI]
-"MUIVerb"="Powershell 7 🛡️"
+; --- Terminal submenu as TI (Background) ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal]
+"MUIVerb"="Terminal"
 "Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
 "Position"="Middle"
+"SubCommands"=""
 
-[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI\command]
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell]
+
+; --- PowerShell 7 ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\01_PowerShell7]
+"MUIVerb"="PowerShell 7"
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\01_PowerShell7\command]
+@="pwsh.exe -NoExit -Command \"Set-Location -LiteralPath '%V'\""
+
+; --- PowerShell 5 ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\02_PowerShell5]
+"MUIVerb"="PowerShell 5"
+"Icon"="powershell.exe,0"
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\02_PowerShell5\command]
+@="powershell.exe -NoExit -Command \"Set-Location -LiteralPath '%V'\""
+
+; --- CMD ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\03_CMD]
+"MUIVerb"="CMD"
+"Icon"="cmd.exe,0"
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\03_CMD\command]
+@="cmd.exe /k cd /d \"%V\""
+
+; --- PowerShell 7 as Admin ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\11_PowerShell7_Admin]
+"MUIVerb"="PowerShell 7 👨‍💼"
+"CommandFlags"=dword:00000020
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\11_PowerShell7_Admin\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsAdmin_Menu.vbs\" \"pwsh.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%V'\"\"\""
+
+; --- PowerShell 5 as Admin ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\12_PowerShell5_Admin]
+"MUIVerb"="PowerShell 5 👨‍💼"
+"Icon"="powershell.exe,0"
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\12_PowerShell5_Admin\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsAdmin_Menu.vbs\" \"powershell.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%V'\"\"\""
+
+; --- CMD as Admin ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\13_CMD_Admin]
+"MUIVerb"="CMD 👨‍💼"
+"Icon"="cmd.exe,0"
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\13_CMD_Admin\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsAdmin_Menu.vbs\" \"cmd.exe\" \"/k cd /d \"%V\"\""
+
+; --- PowerShell 7 as TI ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\21_PowerShell7_TI]
+"MUIVerb"="PowerShell 7 🛡️"
+"CommandFlags"=dword:00000020
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\21_PowerShell7_TI\command]
 @="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"pwsh.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%V'\"\"\""
 
 ; --- PowerShell 5 as TI ---
-[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_PS5]
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\22_PowerShell5_TI]
 "MUIVerb"="PowerShell 5 🛡️"
 "Icon"="powershell.exe,0"
-"Position"="Middle"
-
-[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_PS5\command]
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\22_PowerShell5_TI\command]
 @="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"powershell.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%V'\"\"\""
 
 ; --- CMD as TI ---
-[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_CMD]
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\23_CMD_TI]
 "MUIVerb"="CMD 🛡️"
 "Icon"="cmd.exe,0"
-"Position"="Middle"
-
-[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_CMD\command]
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_Terminal\shell\23_CMD_TI\command]
 @="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"cmd.exe\" \"/k cd /d \"%V\"\""
+
+; --- Terminal submenu for Folders ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal]
+"MUIVerb"="Terminal"
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
+"SubCommands"=""
+
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell]
+
+; --- PowerShell 7 ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\01_PowerShell7]
+"MUIVerb"="PowerShell 7"
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\01_PowerShell7\command]
+@="pwsh.exe -NoExit -Command \"Set-Location -LiteralPath '%L'\""
+
+; --- PowerShell 5 ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\02_PowerShell5]
+"MUIVerb"="PowerShell 5"
+"Icon"="powershell.exe,0"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\02_PowerShell5\command]
+@="powershell.exe -NoExit -Command \"Set-Location -LiteralPath '%L'\""
+
+; --- CMD ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\03_CMD]
+"MUIVerb"="CMD"
+"Icon"="cmd.exe,0"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\03_CMD\command]
+@="cmd.exe /k cd /d \"%L\""
+
+; --- PowerShell 7 as Admin ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\11_PowerShell7_Admin]
+"MUIVerb"="PowerShell 7 👨‍💼"
+"CommandFlags"=dword:00000020
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\11_PowerShell7_Admin\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsAdmin_Menu.vbs\" \"pwsh.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%L'\"\"\""
+
+; --- PowerShell 5 as Admin ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\12_PowerShell5_Admin]
+"MUIVerb"="PowerShell 5 👨‍💼"
+"Icon"="powershell.exe,0"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\12_PowerShell5_Admin\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsAdmin_Menu.vbs\" \"powershell.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%L'\"\"\""
+
+; --- CMD as Admin ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\13_CMD_Admin]
+"MUIVerb"="CMD 👨‍💼"
+"Icon"="cmd.exe,0"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\13_CMD_Admin\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsAdmin_Menu.vbs\" \"cmd.exe\" \"/k cd /d \"%L\"\""
+
+; --- PowerShell 7 as TI ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\21_PowerShell7_TI]
+"MUIVerb"="PowerShell 7 🛡️"
+"CommandFlags"=dword:00000020
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\21_PowerShell7_TI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"pwsh.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%L'\"\"\""
+
+; --- PowerShell 5 as TI ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\22_PowerShell5_TI]
+"MUIVerb"="PowerShell 5 🛡️"
+"Icon"="powershell.exe,0"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\22_PowerShell5_TI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"powershell.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%L'\"\"\""
+
+; --- CMD as TI ---
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\23_CMD_TI]
+"MUIVerb"="CMD 🛡️"
+"Icon"="cmd.exe,0"
+[HKEY_CLASSES_ROOT\Directory\shell\RunAsTI_Terminal\shell\23_CMD_TI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"cmd.exe\" \"/k cd /d \"%L\"\""
 
 ; ---  MAIN FUNCTION  --
 
