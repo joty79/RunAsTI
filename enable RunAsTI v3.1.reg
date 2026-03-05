@@ -1,0 +1,204 @@
+Windows Registry Editor Version 5.00
+
+; Enables "Run as trustedinstaller" in right-click menu
+; Supports: EXE, BAT, CMD, PS1, MSC, REG, DLL, MSI, CAB, VBS, JS, INF, CPL, WSF, HTA, Folder
+; Windows 10/11 compatible
+
+[-HKEY_CLASSES_ROOT\RunAsTI]
+[-HKEY_CLASSES_ROOT\batfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\cmdfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\exefile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\mscfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Microsoft.PowerShellScript.1\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\regfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Folder\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Directory\background\shell\extract]
+[-HKEY_CLASSES_ROOT\JSFile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\VBSFile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\CABFolder\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Msi.Package\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\dllfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\inffile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\cplfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\WSFFile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\htafile\shell\RunAsTI]
+
+; --- Support for .bat files --
+[HKEY_CLASSES_ROOT\batfile\shell\RunAsTI]
+"Extended"=""
+"MUIVerb"="Run as 🛡️"
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\cmd.ico"
+[HKEY_CLASSES_ROOT\batfile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"%L\""
+
+; --- Support for .cmd files --
+[HKEY_CLASSES_ROOT\cmdfile\shell\RunAsTI]
+"Extended"=""
+"MUIVerb"="Run as 🛡️"
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\cmd.ico"
+[HKEY_CLASSES_ROOT\cmdfile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"%L\""
+
+; --- Support for .exe files --
+[HKEY_CLASSES_ROOT\exefile\shell\RunAsTI]
+"Extended"=""
+"MUIVerb"="Run as 🛡️"
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\sudo.ico"
+[HKEY_CLASSES_ROOT\exefile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"%L\""
+
+; --- Support for .msc files --
+[HKEY_CLASSES_ROOT\mscfile\shell\RunAsTI]
+"Extended"=""
+"MUIVerb"="Run as 🛡️"
+"Icon"="mmc.exe,0"
+[HKEY_CLASSES_ROOT\mscfile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"%L\""
+
+; --- Support for .ps1 files with powershell 5 --
+[HKEY_CLASSES_ROOT\Microsoft.PowerShellScript.1\shell\RunAsTI]
+"MUIVerb"="Run as 🛡️"
+"HasLUAShield"=""
+"Icon"="powershell.exe,0"
+[HKEY_CLASSES_ROOT\Microsoft.PowerShellScript.1\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"powershell\" \"-NoExit -nop -c iex((gc -lit %L)-join[char]10)\""
+
+; --- Support for .reg files --
+[HKEY_CLASSES_ROOT\regfile\shell\RunAsTI]
+"MUIVerb"="Import as 🛡️"
+"HasLUAShield"=""
+"Icon"="regedit.exe,0"
+[HKEY_CLASSES_ROOT\regfile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"regedit.exe\" \"/s\" \"%L\""
+
+; --- Fix για CAB όταν το έχει το WinRAR ---
+[HKEY_CLASSES_ROOT\WinRAR\shell\RunAsTI]
+"MUIVerb"="Open as 🛡️"
+"HasLUAShield"=""
+"Icon"="shell32.dll,-16710"
+[HKEY_CLASSES_ROOT\WinRAR\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"explorer.exe\" \"\\\"%L\\\"\""
+
+; --- Fix για να υπάρχει και στο κλασικό CABFolder ---
+[HKEY_CLASSES_ROOT\CABFolder\shell\RunAsTI]
+"MUIVerb"="Open as 🛡️"
+"HasLUAShield"=""
+"Icon"="shell32.dll,-16710"
+[HKEY_CLASSES_ROOT\CABFolder\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"explorer.exe\" \"\\\"%L\\\"\""
+
+; --- Support for .msi files --
+[HKEY_CLASSES_ROOT\Msi.Package\shell\RunAsTI]
+"MUIVerb"="Install as 🛡️"
+"HasLUAShield"=""
+"Icon"="msiexec.exe,0"
+[HKEY_CLASSES_ROOT\Msi.Package\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"msiexec.exe\" \"/i\" \"%1\""
+
+; --- Support for .dll files --
+[HKEY_CLASSES_ROOT\dllfile\shell\RunAsTI]
+"Extended"=""
+"MUIVerb"="Run as 🛡️"
+"HasLUAShield"=""
+"Icon"="shell32.dll,-154"
+[HKEY_CLASSES_ROOT\dllfile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"regsvr32.exe\" \"%1\""
+
+; --- Support for .inf files --
+[HKEY_CLASSES_ROOT\inffile\shell\RunAsTI]
+"Extended"=""
+"MUIVerb"="Install as 🛡️"
+"HasLUAShield"=""
+"Icon"="imageres.dll,-67"
+[HKEY_CLASSES_ROOT\inffile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"pwsh.exe\" \"-WindowStyle Hidden -Command \"\"& InfDefaultInstall.exe '%1'\"\"\""
+
+; --- Support for .cpl (Control Panel) files --
+[HKEY_CLASSES_ROOT\cplfile\shell\RunAsTI]
+"Extended"="" 
+"MUIVerb"="Run as 🛡️"
+"HasLUAShield"=""
+"Icon"="shell32.dll,-137"
+[HKEY_CLASSES_ROOT\cplfile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"control.exe\" \"%1\""
+
+; --- Support for .hta (Control Panel) files --
+[HKEY_CLASSES_ROOT\htafile\shell\RunAsTI]
+"Extended"=""
+"MUIVerb"="Run as 🛡️"
+"HasLUAShield"=""
+"Icon"="mshta.exe,0"
+[HKEY_CLASSES_ROOT\htafile\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"mshta.exe\" \"%1\""
+
+; --- Support for Folders  --
+[HKEY_CLASSES_ROOT\Folder\shell\RunAsTI]
+"MUIVerb"="Open as 🛡️"
+"HasLUAShield"=""
+"Icon"="shell32.dll,-4"
+"AppliesTo"="NOT System.ParsingName:=\"::{645FF040-5081-101B-9F08-00AA002F954E}\""
+[HKEY_CLASSES_ROOT\Folder\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"%L\""
+
+; --- Support for Backround  --
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI]
+"MUIVerb"="Powershell 7 🛡️"
+"Icon"="d:\\Users\\joty79\\Documents\\Icons\\pwsh.ico"
+"Position"="Middle"
+
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"pwsh.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%V'\"\"\""
+
+; --- PowerShell 5 as TI ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_PS5]
+"MUIVerb"="PowerShell 5 🛡️"
+"Icon"="powershell.exe,0"
+"Position"="Middle"
+
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_PS5\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"powershell.exe\" \"-NoExit -Command \"\"Set-Location -LiteralPath '%V'\"\"\""
+
+; --- CMD as TI ---
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_CMD]
+"MUIVerb"="CMD 🛡️"
+"Icon"="cmd.exe,0"
+"Position"="Middle"
+
+[HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_CMD\command]
+@="wscript.exe \"D:\\Users\\joty79\\scripts\\RunAsTI\\RunAsTI_Menu.vbs\" \"cmd.exe\" \"/k cd /d \"%V\"\""
+
+; ---  MAIN FUNCTION  --
+
+[HKEY_CLASSES_ROOT\RunAsTI]
+"10"="function RunAsTI ($cmd,$arg) { $id='RunAsTI'; $key=\"Registry::HKU\\$(((whoami /user)-split' ')[-1])\\Volatile Environment\"; $code=@'"
+"11"=" $I=[int32]; $M=$I.module.gettype(\"System.Runtime.Interop`Services.Mar`shal\"); $P=$I.module.gettype(\"System.Int`Ptr\"); $S=[string]"
+"12"=" $D=@(); $T=@(); $DM=[AppDomain]::CurrentDomain.\"DefineDynami`cAssembly\"(1,1).\"DefineDynami`cModule\"(1); $Z=[uintptr]::size "
+"13"=" 0..5|% {$D += $DM.\"Defin`eType\"(\"1337MAGIQ_$_\",1179913,[ValueType])}; $D += [uintptr]; 4..6|% {$D += $D[$_].\"MakeByR`efType\"()}"
+"14"=" $F='kernel','advapi','advapi', ($S,$S,$I,$I,$I,$I,$I,$S,$D[7],$D[8]), ([uintptr],$S,$I,$I,$D[9]),([uintptr],$S,$I,$I,[byte[]],$I)"
+"15"=" 0..2|% {$9=$D[0].\"DefinePInvok`eMethod\"(('CreateProcess','RegOpenKeyEx','RegSetValueEx')[$_],$F[$_]+'32',8214,1,$S,$F[$_+3],1,4)}"
+"16"=" $DF=($P,$I,$P),($I,$I,$I,$I,$P,$D[1]),($I,$S,$S,$S,$I,$I,$I,$I,$I,$I,$I,$I,[int16],[int16],$P,$P,$P,$P),($D[3],$P),($P,$P,$I,$I)"
+"17"=" 1..5|% {$k=$_; $n=1; $DF[$_-1]|% {$9=$D[$k].\"Defin`eField\"('f' + $n++, $_, 6)}}; 0..5|% {$T += $D[$_].\"Creat`eType\"()}"
+"18"=" 0..5|% {nv \"A$_\" ([Activator]::CreateInstance($T[$_])) -fo}; function F ($1,$2) {$T[0].\"G`etMethod\"($1).invoke(0,$2)}"
+"19"=" $TI=(whoami /groups)-like'*1-16-16384*'; $As=0; if(!$cmd) {$cmd='control';$arg='admintools'}; if ($cmd-eq'This PC'){$cmd='file:'}"
+"20"=" if (!$TI) {'TrustedInstaller','lsass','winlogon'|% {if (!$As) {$9=sc.exe start $_; $As=@(get-process -name $_ -ea 0|% {$_})[0]}}"
+"21"=" function M ($1,$2,$3) {$M.\"G`etMethod\"($1,[type[]]$2).invoke(0,$3)}; $H=@(); $Z,(4*$Z+16)|% {$H += M \"AllocHG`lobal\" $I $_}"
+"22"=" M \"WriteInt`Ptr\" ($P,$P) ($H[0],$As.Handle); $A1.f1=131072; $A1.f2=$Z; $A1.f3=$H[0]; $A2.f1=1; $A2.f2=1; $A2.f3=1; $A2.f4=1"
+"23"=" $A2.f6=$A1; $A3.f1=10*$Z+32; $A4.f1=$A3; $A4.f2=$H[1]; M \"StructureTo`Ptr\" ($D[2],$P,[boolean]) (($A2 -as $D[2]),$A4.f2,$false)"
+"24"=" $Run=@($null, \"powershell -win Hidden -nop -c iex `$env:R; # $id\", 0, 0, 0, 0x0E080600, 0, $null, ($A4 -as $T[4]), ($A5 -as $T[5]))"
+"25"=" F 'CreateProcess' $Run; return}; $env:R=''; rp $key $id -force; $priv=[diagnostics.process].\"GetM`ember\"('SetPrivilege',42)[0]"
+"26"=" 'SeSecurityPrivilege','SeTakeOwnershipPrivilege','SeBackupPrivilege','SeRestorePrivilege' |% {$priv.Invoke($null, @(\"$_\",2))}"
+"27"=" $HKU=[uintptr][uint32]2147483651; $NT='S-1-5-18'; $reg=($HKU,$NT,8,2,($HKU -as $D[9])); F 'RegOpenKeyEx' $reg; $LNK=$reg[4]"
+"28"=" function L ($1,$2,$3) {sp 'Registry::HKCR\\AppID\\{CDCBCFCA-3CDC-436f-A4E2-0E02075250C2}' 'RunAs' $3 -force -ea 0"
+"29"="  $b=[Text.Encoding]::Unicode.GetBytes(\"\\Registry\\User\\$1\"); F 'RegSetValueEx' @($2,'SymbolicLinkValue',0,6,[byte[]]$b,$b.Length)}"
+"30"=" function Q {[int](gwmi win32_process -filter 'name=\"explorer.exe\"'|?{$_.getownersid().sid-eq$NT}|select -last 1).ProcessId}"
+"31"=" $env:wt=if(gcm wt.exe -ea 0){'wt.exe \"-d .\"'}else{'powershell'}"
+"32"=" $11bug=($((gwmi Win32_OperatingSystem).BuildNumber)-eq'22000')-AND(($cmd-eq'file:')-OR(test-path -lit $cmd -PathType Container))"
+"33"=" if ($11bug) {'System.Windows.Forms','Microsoft.VisualBasic' |% {$9=[Reflection.Assembly]::LoadWithPartialName(\"$_\")}}"
+"34"=" if ($11bug) {$path='^(l)'+$($cmd -replace '([\\+\\^\\%\\~\\(\\)\\[\\]])','{$1}')+'{ENTER}'; $cmd='control.exe'; $arg='admintools'}"
+"35"=" L ($key-split'\\\\')[1] $LNK ''; $R=[diagnostics.process]::start($cmd,$arg); if ($R) {$R.PriorityClass='High'; $R.WaitForExit()}"
+"36"=" if ($11bug) {$w=0; do {if($w-gt40){break}; sleep -mi 250;$w++} until (Q); [Microsoft.VisualBasic.Interaction]::AppActivate($(Q))}"
+"37"=" if ($11bug) {[Windows.Forms.SendKeys]::SendWait($path)}; do {sleep 7} while(Q); L '.Default' $LNK 'Interactive User'"
+"38"="'@; $V='';'cmd','arg','id','key'|%{$V+=\"`n`$$_='$($(gv $_ -val)-replace\"'\",\"''\")';\"}; sp $key $id $($V,$code) -type 7 -force -ea 0"
+"39"=" (New-Object -ComObject Shell.Application).ShellExecute(\"powershell\", \"-win Hidden -nop -c `n$V `$env:R=(gi `$key -ea 0).getvalue(`$id)-join''; iex `$env:R\", \"\", \"runas\", 0)"
+"40"="}; $A=,([environment]::commandline-split'-[-]%+ ?',2)[1]-split'\"([^\"]+)\"|([^ ]+)',2|%{$_.Trim(' \"')}; RunAsTI $A[1] $A[2]; # 1337MAGIQ, 2025.11.16"
+;

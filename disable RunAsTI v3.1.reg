@@ -1,0 +1,27 @@
+Windows Registry Editor Version 5.00
+
+; Enables "Run as trustedinstaller" in right-click menu
+; Supports: EXE, BAT, CMD, PS1, MSC, REG, DLL, MSI, CAB, VBS, JS, INF, CPL, WSF, HTA, Folder
+; Windows 10/11 compatible
+
+[-HKEY_CLASSES_ROOT\RunAsTI]
+[-HKEY_CLASSES_ROOT\batfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\cmdfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\exefile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\mscfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Microsoft.PowerShellScript.1\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\regfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Folder\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_PS5]
+[-HKEY_CLASSES_ROOT\Directory\background\shell\RunAsTI_CMD]
+[-HKEY_CLASSES_ROOT\JSFile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\VBSFile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\WinRAR\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\CABFolder\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\Msi.Package\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\dllfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\inffile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\cplfile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\WSFFile\shell\RunAsTI]
+[-HKEY_CLASSES_ROOT\htafile\shell\RunAsTI]
