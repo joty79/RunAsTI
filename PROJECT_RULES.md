@@ -75,3 +75,11 @@
 - Guardrail/rule: When retiring or renaming shell verbs, verify and clean both user-level and machine-wide branches; if Explorer still shows an old item, inspect `HKLM\Software\Classes\...` in addition to `HKCU\Software\Classes\...`.
 - Files affected: `PROJECT_RULES.md`
 - Validation/tests run: `reg query HKCR\Directory\Background\shell\RunAsAdmin_PowerShell7 /s`; `reg query HKLM\Software\Classes\Directory\Background\shell\RunAsAdmin_PowerShell7 /s`; elevated `reg delete`.
+
+### 2026-03-09 - Self-Contained Installer Assets
+- Date: 2026-03-09
+- Problem: The repo had no installer and the menu assets still depended on external machine-local icon paths such as `D:\Users\joty79\Documents\Icons\*.ico`.
+- Root cause: The original `.reg` artifacts and wrappers were authored against one dev machine path instead of a deployable install root.
+- Guardrail/rule: Keep imported runtime icons inside `.assets\icons` and treat `Install.ps1` as the primary install path. `RunAsTI` must use the shared `InstallerCore` template-generated installer, not a bespoke installer flow. The generated install must deploy the repo-owned assets, patch installed wrappers/`.reg` artifacts to the deployed install root, and write the main RunAsTI menu set under `HKCU\Software\Classes` for per-user portability.
+- Files affected: `.assets\icons\cmd.ico`, `.assets\icons\pwsh.ico`, `.assets\icons\sudo.ico`, `Install.ps1`, `RegistryFinder_TI.vbs`, `README.md`, `PROJECT_RULES.md`
+- Validation/tests run: Replaced ad-hoc `Install.ps1` with template-generated installer from `InstallerCore`; PowerShell parser validation passed on `Install.ps1`; static checks confirmed `Local/GitHub` package-source chooser, branch picker functions, and `{InstallRoot}\.assets\icons\...` references in the generated installer.

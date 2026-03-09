@@ -153,7 +153,22 @@ wscript.exe ".\RegistryFinder_TI.vbs"
 
 ## 📦 Installation
 
-### Quick Setup
+### Recommended Installer
+```powershell
+# Interactive installer
+pwsh -ExecutionPolicy Bypass -File .\Install.ps1
+
+# Direct actions
+pwsh -ExecutionPolicy Bypass -File .\Install.ps1 -Action Install
+pwsh -ExecutionPolicy Bypass -File .\Install.ps1 -Action Update
+pwsh -ExecutionPolicy Bypass -File .\Install.ps1 -Action Uninstall
+```
+
+This installs the main RunAsTI menu set under `%LOCALAPPDATA%\RunAsTIContext`, copies the required wrapper files and icons into the install folder, and writes the shell entries under `HKCU\Software\Classes` so the package stays portable on another PC.
+
+The installer follows the shared `InstallerCore` flow: for `Install` and `Update`, it asks whether to use `GitHub` or `Local` package source, and when `GitHub` is selected it continues with the branch picker flow.
+
+### Registry-Only Alternative
 ```powershell
 # Install the main RunAsTI menu set
 reg import ".\enable RunAsTI v3.1.reg"
@@ -181,10 +196,15 @@ RunAsTI/
 ├── .agents/
 │   └── workflows/
 │       └── readme.md                    # Repo-local copy of the README workflow template
-├── .assets/                             # Reserved assets directory
+├── .assets/
+│   └── icons/
+│       ├── cmd.ico                      # Repo-owned CMD icon used by the installer/menu
+│       ├── pwsh.ico                     # Repo-owned PowerShell 7 icon used by the installer/menu
+│       └── sudo.ico                     # Repo-owned RunAsTI executable icon used by the installer/menu
 ├── docs/
 │   ├── Lessons_Clipboard_Quotes.md      # Notes from quoting and shell integration troubleshooting
 │   └── ShellExtension_Guide.md          # Reference notes for Windows shell extension behavior
+├── Install.ps1                          # Primary installer for per-user deployment
 ├── legacy/
 │   ├── SilentOwnership.vbs              # Archived wrapper from an older ownership-related flow
 │   ├── SilentTI.vbs                     # Archived wrapper from an older TI flow

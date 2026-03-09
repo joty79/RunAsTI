@@ -21,7 +21,7 @@ End If
 Quote = Chr(34)
 
 ' 🔵 Paths
-RunAsTI_Script = "D:\Users\joty79\scripts\RunAsTI\RunAsTI.ps1"
+RunAsTI_Script = Replace(WScript.ScriptFullName, WScript.ScriptName, "RunAsTI.ps1")
 RegFinder_Exe  = "C:\Program Files\Registry Finder\RegistryFinder.exe"
 
 ' 🔵 Call RunAsTI.ps1 in Universal mode
