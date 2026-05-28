@@ -83,3 +83,11 @@
 - Guardrail/rule: Keep imported runtime icons inside `.assets\icons` and treat `Install.ps1` as the primary install path. `RunAsTI` must use the shared `InstallerCore` template-generated installer, not a bespoke installer flow. The generated install must deploy the repo-owned assets, patch installed wrappers/`.reg` artifacts to the deployed install root, and write the main RunAsTI menu set under `HKCU\Software\Classes` for per-user portability.
 - Files affected: `.assets\icons\cmd.ico`, `.assets\icons\pwsh.ico`, `.assets\icons\sudo.ico`, `Install.ps1`, `RegistryFinder_TI.vbs`, `README.md`, `PROJECT_RULES.md`
 - Validation/tests run: Replaced ad-hoc `Install.ps1` with template-generated installer from `InstallerCore`; PowerShell parser validation passed on `Install.ps1`; static checks confirmed `Local/GitHub` package-source chooser, branch picker functions, and `{InstallRoot}\.assets\icons\...` references in the generated installer.
+
+### 2026-05-24 - Gsudo TI Full Privilege Helper
+- Date: 2026-05-24
+- Problem: `gsudo --ti` launched as `SYSTEM` with the TrustedInstaller group, but left `SeSecurityPrivilege`, `SeTakeOwnershipPrivilege`, `SeBackupPrivilege`, and `SeRestorePrivilege` disabled compared with the existing RunAsTI payload.
+- Root cause: `gsudo --ti` provides the TI token identity but does not currently enable those disabled-but-present privileges before launching the target command.
+- Guardrail/rule: For local full-power TI tests, use `ssu` interactively, or resolve the helper from `$PROFILE.CurrentUserCurrentHost` and run it through direct `gsudo.exe --ti` for automation. The helper belongs to the PowerShell profile repo, not this RunAsTI context-menu repo.
+- Files affected: `D:\Users\joty79\Documents\PowerShell\Scripts\Enable-TIPrivilegesAndRun.ps1`, `D:\Users\joty79\Documents\PowerShell\Microsoft.PowerShell_profile.ps1`, `README.md`, `CHANGELOG.md`, `PROJECT_RULES.md`
+- Validation/tests run: PowerShell parser validation passed; non-admin run failed correctly because the medium token lacked `SeSecurityPrivilege`; `gsudo.exe --ti pwsh -NoProfile -File .\Enable-TIPrivilegesAndRun.ps1 whoami.exe /all` showed all four target privileges as `Enabled`; profile parser validation passed; `ssu whoami.exe /all` showed SYSTEM, TrustedInstaller, and all four target privileges as `Enabled`.

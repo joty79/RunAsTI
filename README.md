@@ -16,6 +16,7 @@
 | # | Tool | Description |
 |:-:|------|-------------|
 | 🛡️ | **[RunAsTI Core](#-runasti-core)** | Launches arbitrary commands as TrustedInstaller through a PowerShell bootstrap. |
+| 🔐 | **[Gsudo TI Full Helper](#-gsudo-ti-full-helper)** | Enables RunAsTI-style sensitive privileges inside a `gsudo --ti` launch. |
 | 🧭 | **[Terminal Menus](#-terminal-menus)** | Adds grouped normal, admin, and TrustedInstaller terminal entries for folder background and folder click. |
 | 🔎 | **[Registry Finder TI](#-registry-finder-ti)** | Opens Registry Finder through the same elevation chain with a dedicated wrapper. |
 
@@ -62,6 +63,50 @@ pwsh -File .\RunAsTI.ps1 -TargetFile "C:\Windows\System32" -ScriptPath "D:\Users
 | `-Arguments` | `string` | `""` | Raw argument string passed to `-Command`. |
 | `-TargetFile` | `string` | none | Target path used by wrapper-driven script mode. |
 | `-ScriptPath` | `string` | none | Script invoked when `-TargetFile` mode is used. |
+
+## 🔐 Gsudo TI Full Helper
+
+> Local proof-of-concept helper for making `gsudo --ti` match the sensitive privilege state of RunAsTI.
+
+### The Problem
+- `gsudo --ti` launches as `SYSTEM` with the TrustedInstaller group, but leaves some sensitive privileges disabled.
+- RunAsTI enables `SeSecurityPrivilege`, `SeTakeOwnershipPrivilege`, `SeBackupPrivilege`, and `SeRestorePrivilege`.
+- Ownership, ACL, backup/restore, and protected registry work may need those privileges enabled before the target command starts.
+
+### The Solution
+
+`Enable-TIPrivilegesAndRun.ps1` enables the four privileges in the current process token, then launches the requested command so the child process inherits the enabled privilege state. Locally, this helper lives with the shared PowerShell profile under `Documents\PowerShell\Scripts`.
+
+```text
+gsudo.exe --ti
+  -> pwsh -File Enable-TIPrivilegesAndRun.ps1
+     -> AdjustTokenPrivileges(...)
+        -> target command
+```
+
+This keeps `gsudo --ti` as the identity provider while preserving RunAsTI-style privilege strength for explicit local use.
+
+### Usage
+
+**From terminal:**
+```powershell
+# Verify full privilege state
+$profileRoot = Split-Path -Path $PROFILE.CurrentUserCurrentHost -Parent
+gsudo.exe --ti pwsh -NoProfile -File (Join-Path $profileRoot 'Scripts\Enable-TIPrivilegesAndRun.ps1') whoami.exe /all
+
+# Local PowerShell profile shortcut
+ssu whoami.exe /all
+
+# Launch another command through the helper
+gsudo.exe --ti pwsh -NoProfile -File (Join-Path $profileRoot 'Scripts\Enable-TIPrivilegesAndRun.ps1') reg.exe query HKLM\SOFTWARE
+```
+
+| Parameter | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `-Command` | `string` | none | Target executable or command to run after privileges are enabled. |
+| `-Arguments` | `string[]` | `@()` | Remaining arguments passed to the target command. |
+
+Local interactive shells may define `ssu` as the short form for this full TrustedInstaller mode. Automation should still call `gsudo.exe` directly for predictable argument handling.
 
 ## 🧭 Terminal Menus
 
@@ -226,6 +271,13 @@ RunAsTI/
 <summary><b>Why is the main TrustedInstaller payload stored in the registry?</b></summary>
 
 The default shell flow uses `RunAsTI_Menu.vbs`, which loads the embedded PowerShell payload from `HKCR\RunAsTI` values `10..40`. This keeps the shell command strings short and avoids duplicating the full TI injector in every wrapper or menu entry.
+
+</details>
+
+<details>
+<summary><b>Why is there a gsudo TrustedInstaller helper?</b></summary>
+
+`gsudo --ti` provides the TrustedInstaller identity, but its launched token can leave ownership, backup, restore, and security privileges disabled. `Enable-TIPrivilegesAndRun.ps1` explicitly enables those privileges for local full-power tests without changing the existing RunAsTI shell menu backend.
 
 </details>
 
